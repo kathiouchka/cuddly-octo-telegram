@@ -1,6 +1,6 @@
 # Galerie de Contenu Marocaine
 
-Une application web pour partager et afficher du contenu avec une esthétique marocaine, construite avec Next.js, Prisma et TailwindCSS.
+Une application web entierement coder via LLM pour partager et afficher du contenu avec une esthétique marocaine, construite avec Next.js, Prisma et TailwindCSS.
 
 ## Fonctionnalités
 
