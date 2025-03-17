@@ -1,0 +1,7 @@
+npx create-next-app@latest mon-projet
+cd mon-projet
+npm install prisma @prisma/client bcryptjs
+npm install -D @types/bcryptjs
+npm install next react react-dom @prisma/client
+npm install -D @types/react @types/react-dom @types/node
+npx prisma init 

@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id            Int            @id @default(autoincrement())
+  username      String         @unique
+  password_hash String
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  sessions      AdminSession[]
+}
+
+model AdminSession {
+  id            String      @id
+  admin_user_id Int
+  admin_user    AdminUser   @relation(fields: [admin_user_id], references: [id], onDelete: Cascade)
+  expires_at    DateTime
+  created_at    DateTime    @default(now())
+}
+
+model Video {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  youtube_url String
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  comments    Comment[]
+}
+
+model Tweet {
+  id          Int       @id @default(autoincrement())
+  description String
+  tweet_url   String
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  comments    Comment[]
+}
+
+model Photo {
+  id          Int       @id @default(autoincrement())
+  description String
+  image_url   String
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  comments    Comment[]
+}
+
+model Comment {
+  id           Int      @id @default(autoincrement())
+  comment_text String
+  created_at   DateTime @default(now())
+  
+  // Relations polymorphiques
+  video_id     Int?
+  tweet_id     Int?
+  photo_id     Int?
+  
+  video        Video?   @relation(fields: [video_id], references: [id], onDelete: Cascade)
+  tweet        Tweet?   @relation(fields: [tweet_id], references: [id], onDelete: Cascade)
+  photo        Photo?   @relation(fields: [photo_id], references: [id], onDelete: Cascade)
+} 
