@@ -101,7 +101,7 @@ export default async function AdminLayout({
       </main>
       
       <footer className="bg-gray-100 py-4 text-center text-gray-600 text-sm">
-        Panneau d'administration - Galerie Marocaine
+        Admin's panel - Le wall de Kathiou
       </footer>
     </div>
   )

@@ -5,8 +5,8 @@ import Navbar from '../components/Navbar'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Galerie de Contenu Marocaine',
-  description: 'Une galerie de contenu avec une esthétique marocaine',
+  title: 'Le wall de Kathiou',
+  description: 'Tous les bails que je kiff',
 }
 
 export default function RootLayout({

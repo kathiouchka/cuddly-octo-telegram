@@ -21,7 +21,7 @@ export default function Navbar() {
     }`}>
       <div className="container mx-auto px-4 flex justify-between items-center">
         <Link href="/" className="text-2xl font-bold text-brick-red">
-          Galerie Marocaine
+          Le wall de Kathiou
         </Link>
         
         <div className="flex space-x-4">

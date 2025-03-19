@@ -29,19 +29,19 @@ export async function GET(request: NextRequest) {
     switch (type) {
       case 'video':
         comments = await prisma.comment.findMany({
-          where: { videoId: contentId },
+          where: { video_id: contentId },
           orderBy: { created_at: 'desc' },
         })
         break
       case 'tweet':
         comments = await prisma.comment.findMany({
-          where: { tweetId: contentId },
+          where: { tweet_id: contentId },
           orderBy: { created_at: 'desc' },
         })
         break
       case 'photo':
         comments = await prisma.comment.findMany({
-          where: { photoId: contentId },
+          where: { photo_id: contentId },
           orderBy: { created_at: 'desc' },
         })
         break

@@ -32,7 +32,7 @@ export default async function Home() {
   
   return (
     <div>
-      <h1 className="text-3xl font-bold text-brick-red mb-8 text-center">Galerie de Contenu</h1>
+      <h1 className="text-3xl font-bold text-brick-red mb-8 text-center">Bails</h1>
       
       <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
         {content.map((item: any) => (

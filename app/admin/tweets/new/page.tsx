@@ -78,6 +78,7 @@ export default function NewTweet() {
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-terracotta"
               rows={3}
               required
+              placeholder="Ajoutez un commentaire ou une description pour ce tweet"
             />
           </div>
           

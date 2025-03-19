@@ -7,6 +7,8 @@ import CommentSection from './CommentSection'
 export default function Card({ item }: { item: any }) {
   const [isVisible, setIsVisible] = useState(false)
   const [showComments, setShowComments] = useState(false)
+  const [tweetHtml, setTweetHtml] = useState<string>('')
+  const [isTweetLoading, setIsTweetLoading] = useState(false)
   
   useEffect(() => {
     // Simple fade-in animation
@@ -14,8 +16,85 @@ export default function Card({ item }: { item: any }) {
       setIsVisible(true)
     }, 100)
     
+    // Load tweet if necessary
+    if (item.type === 'tweet' && item.tweet_url) {
+      loadTweet(item.tweet_url)
+    }
+    
     return () => clearTimeout(timer)
-  }, [])
+  }, [item])
+  
+  // Function to load tweet using oEmbed
+  const loadTweet = async (tweetUrl: string) => {
+    setIsTweetLoading(true)
+    
+    try {
+      // Try to get from localStorage first
+      const cacheKey = `tweet_${tweetUrl}`;
+      const cachedData = localStorage.getItem(cacheKey);
+      
+      if (cachedData) {
+        try {
+          const { html, timestamp } = JSON.parse(cachedData);
+          const cacheAge = Date.now() - timestamp;
+          
+          // Use cache if it's less than a week old
+          if (cacheAge < 7 * 24 * 60 * 60 * 1000) {
+            setTweetHtml(html);
+            
+            // Load Twitter JS
+            loadTwitterScript();
+            
+            // We still have data, so we can return early
+            setIsTweetLoading(false);
+            return;
+          }
+        } catch (e) {
+          // Invalid cache data, continue to fetch
+          console.warn('Invalid cache data', e);
+        }
+      }
+      
+      // Fetch from API if no valid cache
+      const response = await fetch(`/api/tweet-proxy?url=${encodeURIComponent(tweetUrl)}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch tweet data');
+      }
+      
+      const data = await response.json();
+      setTweetHtml(data.html);
+      
+      // Save to localStorage
+      localStorage.setItem(cacheKey, JSON.stringify({
+        html: data.html,
+        timestamp: Date.now()
+      }));
+      
+      // Load Twitter JS
+      loadTwitterScript();
+      
+    } catch (error) {
+      console.error("Error loading tweet:", error);
+    } finally {
+      setIsTweetLoading(false);
+    }
+  };
+  
+  // Helper function to load Twitter script
+  const loadTwitterScript = () => {
+    if (typeof window !== 'undefined') {
+      if (!window.twttr) {
+        const script = document.createElement("script");
+        script.src = "https://platform.twitter.com/widgets.js";
+        script.async = true;
+        document.body.appendChild(script);
+      } else {
+        // If Twitter script already loaded, tell it to process new tweets
+        window.twttr.widgets.load();
+      }
+    }
+  };
   
   // Fonction pour extraire l'ID de la vidéo YouTube
   const getYoutubeVideoId = (url: string) => {
@@ -43,15 +122,31 @@ export default function Card({ item }: { item: any }) {
       case 'tweet':
         return (
           <div className="p-4 bg-blue-50 rounded-t-lg">
-            <p className="text-gray-600 italic">"{item.description}"</p>
-            <a
-              href={item.tweet_url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-blue-500 text-sm hover:underline mt-2 inline-block"
-            >
-              Voir sur Twitter
-            </a>
+            {isTweetLoading ? (
+              <div className="flex justify-center items-center h-24">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div>
+            ) : tweetHtml ? (
+              <div 
+                className="tweet-container" 
+                dangerouslySetInnerHTML={{ __html: tweetHtml }}
+              />
+            ) : (
+              <div className="tweet-fallback">
+                <p className="text-gray-600 italic">"{item.description}"</p>
+                <p className="text-red-500 text-sm mt-2">
+                  Le tweet n'a pas pu être chargé. 
+                </p>
+                <a
+                  href={item.tweet_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-500 text-sm hover:underline mt-1 inline-block"
+                >
+                  Voir sur Twitter
+                </a>
+              </div>
+            )}
           </div>
         )
       case 'photo':
@@ -77,7 +172,7 @@ export default function Card({ item }: { item: any }) {
       
       <div className="p-4">
         <h3 className="text-lg font-medium text-gray-900">
-          {item.title || item.description}
+          {item.type === 'tweet' ? 'Tweet' : (item.title || item.description)}
         </h3>
         
         {item.type === 'video' && (
@@ -103,4 +198,15 @@ export default function Card({ item }: { item: any }) {
       </div>
     </div>
   )
+}
+
+// Add TypeScript interface for window.twttr
+declare global {
+  interface Window {
+    twttr: {
+      widgets: {
+        load: (element?: HTMLElement) => void;
+      };
+    };
+  }
 } 
